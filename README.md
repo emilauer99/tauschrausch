@@ -1,68 +1,45 @@
-# Tauschrausch
+# Tauschrausch — Monorepo
 
-Hyperlokale **Tausch- und Treffen-App für Festivals** — eine mobile Progressive Web App (PWA).
-Besucher landen ohne Download über einen Link auf dem Festivalgelände und können in Sekunden
-Dinge **suchen/bieten**, sich für **Spiele-Lobbys** (Flunkyball, Beerpong …) oder gemeinsame
-**Act-Besuche** zusammentun — alles auf die Realität eines Festivals zugeschnitten
-(schlechtes Netz, grelle Sonne, wenig Akku).
+Hyperlokale **Tausch- und Treffen-Plattform für Festivals**. Das Repo bündelt zwei
+eigenständige Vue-3-Apps, die aus Klick-Prototypen aus Claude Design als echte,
+wartbare Anwendungen umgesetzt wurden. Beide sind reine Frontends mit Mock-Daten,
+kein gemeinsames Backend.
 
-Diese Implementierung setzt den Klick-Prototyp aus Claude Design als echte, wartbare
-**Vue 3 + Vite** App um. Alle Daten sind Mock-Daten im Speicher; ein Teil des Zustands
-(Login, gewähltes Festival, Theme, erstellte Inserate, beigetretene Lobbys) wird in
-`localStorage` gespeichert und übersteht ein Reload. Kein Backend.
+## Apps
 
-## Tech-Stack
+| App | Ordner | Zweck | Dev-Port |
+|-----|--------|-------|----------|
+| **Festival-App** | [`apps/festival-app`](apps/festival-app) | Besucher-PWA: Suche/Biete-Marktplatz, Chat, Spiele-Lobbys & Act-Treffen, Line-up, Geländekarte, Onboarding, Profil. Mobil, mit `localStorage`-Persistenz. | `5173` |
+| **Festival-Admin** | [`apps/festival-admin`](apps/festival-admin) | Moderations-/Verwaltungs-Backend: Meldungen, Inserate, Lobbys, Nutzer, Festivals (Mandanten), Zonen + Geländeplan, Line-up (Bühnen/Acts/Timetable, CSV-Import). Desktop, ohne Persistenz. | `5174` |
 
-- **Vue 3** (Composition API, `<script setup>`)
-- **Vite 5** + **vite-plugin-pwa** (Service Worker, Web-App-Manifest, Offline-Caching der Fonts/Icons)
-- **Pinia** — zentraler Store (`src/store/app.ts`) mit dem gesamten Zustand, den Actions und
-  einem großen abgeleiteten `vals`-Computed (dem Port der `renderVals`-Logik des Prototyps)
-- **TypeScript**
-- Fonts: Space Grotesk + Inter · Icons: [Phosphor Icons](https://phosphoricons.com/) (per CDN)
+Jede App ist eigenständig (eigenes `package.json`, `node_modules`, `vite.config.ts`).
+Es gibt **keinen** Workspace-Root mit gemeinsamen Dependencies — jede App wird für sich
+installiert und gebaut.
 
-## Befehle
+## Loslegen
 
 ```bash
-npm install        # Abhängigkeiten installieren
-npm run dev        # Dev-Server (http://localhost:5173)
-npm run build      # Produktions-Build nach dist/
-npm run preview    # gebauten Build lokal servieren
+# Besucher-App
+cd apps/festival-app && npm install && npm run dev      # → http://localhost:5173
+
+# Admin-Backend
+cd apps/festival-admin && npm install && npm run dev    # → http://localhost:5174
 ```
 
-## Projektstruktur
+Demo-Logins: Festival-App `Lenerl` / `festival` · Admin `admin` / `admin`.
+
+## Aufbau
 
 ```
-index.html                 Vite-Einstiegspunkt
-vite.config.ts             Vite- + PWA-Konfiguration
-public/                    Icons (favicon.svg, icon.svg, icon-maskable.svg)
-src/
-  main.ts                  App-Bootstrap (Vue + Pinia)
-  style.css                Globales CSS (Reset, Keyframes, versteckte Scrollbars)
-  App.vue                  Phone-Shell: Statusleiste, Banner, Bottom-Nav, mountet alle Views + Overlays
-  store/app.ts             Pinia-Store — Zustand, Actions, abgeleitete Werte (vals)
-  views/                   Bildschirme (Onboarding, Feed, Create, Detail, Chat, Treffen,
-                           Lobby/Act erstellen & Detail, Line-up, Karte, Profil)
-  components/Overlays.vue  Alle Sheets, Toasts und Modals
-reference/                 Original-Design zur Referenz
-  design-source.dc.html    Quell-Prototyp aus Claude Design (Vorlage dieser Umsetzung)
-  prototype-bundle.html    Exportierter, eigenständiger Prototyp-Build
+apps/
+  festival-app/     Besucher-PWA (Vue 3 + Vite PWA, idiomatisch refaktoriert: typed Store,
+                    Composables, scoped CSS). Details in apps/festival-app/CLAUDE.md
+  festival-admin/   Admin-Backend (Vue 3 + Vite, Inline-Style-Port des Designs, ein Pinia-Store).
+                    Details in apps/festival-admin/CLAUDE.md
+.claude/            vue-best-practices Skill (Style-Guide für Vue-Arbeit)
 ```
 
-## Bildschirme & Flows
-
-- **Onboarding** — Willkommen → Registrieren/Einloggen (Demo-Konto: `Lenerl` / `festival`) →
-  Festival wählen (QR-Vorschlag oder manuell) → Camping-Zone
-- **Feed** — Marktplatz aus Suche/Biete-Inseraten; Filter nach Typ, Kategorie und Zone;
-  drei Layout-Varianten (Poster / Kompakt / Foto); Detailansicht + 1:1-Chat
-- **Inserat erstellen** — Suche/Biete, Kategorie, Titel, Preis (VB/Tausch/Gratis),
-  optionaler Standort am Geländeplan
-- **Treffen** — Spiele-Lobbys & Act-Treffen entdecken, beitreten, Gruppenchat, eigene eröffnen;
-  Line-up mit „Wer geht mit?"-Gruppen; Erinnerungen 30/5 Min vor Start
-- **Karte** — Geländeplan mit Zonen und Pins für Inserate/Lobbys; Zoom & Pan
-- **Profil** — Score/Deals, Sonnen-Modus (Light/Dark), Erinnerungen, Festival wechseln, ausloggen
-
-## Hinweis
-
-Reiner Frontend-Prototyp mit Mock-Daten — bewusst ohne Zahlungsabwicklung, ohne echtes Backend.
-Ein späterer Ausbau (z. B. Supabase für Auth, Realtime-Chat und Persistenz) ist im Konzeptpapier
-skizziert.
+Beide Apps folgen demselben Grundmuster: **ein Pinia-Store** hält den gesamten Zustand, die
+Actions und ein großes abgeleitetes `vals`/Getter-Objekt (der Port der `renderVals`-Logik des
+jeweiligen Prototyps); die View-Komponenten sind fast reine Templates. Die architektonischen
+Details und Stolpersteine je App stehen in der jeweiligen `CLAUDE.md`.

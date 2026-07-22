@@ -1,7 +1,8 @@
+# monorepo — ignore build artifacts and IDE config at any depth
 node_modules
 dist
 dist-ssr
-*.local
-.DS_Store
 .idea
+.DS_Store
+*.local
 *.log
