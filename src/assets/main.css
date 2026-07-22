@@ -1,0 +1,88 @@
+/* Global stylesheet: CSS reset, design tokens, keyframes, shared utilities.
+ * Component-specific styling lives in each SFC's <style scoped> block.
+ * Theme tokens are inherited CSS custom properties — scoped styles reference
+ * them via var(--x), so the light/dark switch is a single data-theme flip. */
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; height: 100%; }
+
+body {
+  background: radial-gradient(1200px 800px at 20% -10%, #141519, #0a0a0b 60%);
+  font-family: 'Inter', system-ui, sans-serif;
+  color: #f5f7fa;
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  background: #0e0f12;
+}
+
+button { font-family: inherit; }
+
+/* ---- design tokens -------------------------------------------------------- */
+/* `--ink` is the constant dark used for text on bright accent surfaces.
+ * Brand accents (biete/suche/games) run through logo, avatars and CTAs. */
+
+.frame {
+  --ink: #0e0f12;
+}
+
+.frame[data-theme='dark'] {
+  --bg: #0e0f12;
+  --card: #1a1c20;
+  --card2: #24272e;
+  --line: rgba(245, 247, 250, 0.09);
+  --text: #f5f7fa;
+  --muted: #9aa0aa;
+  --biete: #c7ff3c;
+  --suche: #ff3cac;
+  --games: #ffb020;
+  --danger: #ff4d4d;
+  --switch-track: var(--card2);
+  --switch-x: 3px;
+}
+
+.frame[data-theme='light'] {
+  --bg: #f7f8f4;
+  --card: #ffffff;
+  --card2: #eceee6;
+  --line: rgba(14, 15, 18, 0.12);
+  --text: #14151a;
+  --muted: #5a6068;
+  --biete: #aee81c;
+  --suche: #e01e8e;
+  --games: #e89100;
+  --danger: #d62a2a;
+  --switch-track: var(--games);
+  --switch-x: 25px;
+}
+
+/* ---- shared utilities ----------------------------------------------------- */
+
+/* hidden scrollbars for the feed and horizontal chip rails */
+.scr::-webkit-scrollbar { width: 0; height: 0; }
+.scr { scrollbar-width: none; -ms-overflow-style: none; }
+
+/* press feedback — replaces the prototype's style-active scale */
+.pressable { transition: transform 0.12s; }
+.pressable:active { transform: scale(0.98); }
+
+/* ---- keyframes ------------------------------------------------------------ */
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes toastIn {
+  0% { opacity: 0; transform: translate(-50%, 14px); }
+  12% { opacity: 1; transform: translate(-50%, 0); }
+  86% { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, -8px); }
+}
+@keyframes popIn { 0% { opacity: 0; transform: scale(0.92); } 100% { opacity: 1; transform: none; } }
+@keyframes glow { 0%, 100% { opacity: 0.5; } 50% { opacity: 0.85; } }
+
+/* enter animation replayed on each screen swap (keyed remount in App.vue) */
+.screen-anim { animation: fadeUp 0.28s ease both; }
